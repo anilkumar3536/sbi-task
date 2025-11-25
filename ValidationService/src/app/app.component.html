@@ -4,17 +4,30 @@
     <form [formGroup]="carpetForm">
       <div class="col-lg-6">
         <label>Carpet Area</label>
-        <input type="text" formControlName="carpetarea" class="form-control">
+        <input type="text" formControlName="carpetarea" class="form-control" maxlength="6">
+        <div class="msg" *ngIf="carpetForm.controls['carpetarea']?.errors && carpetForm.controls['carpetarea'].touched">
+          <div *ngIf="carpetForm.controls['carpetarea']?.errors?.['pattern']">
+            Numbers only allowed
+          </div>
+          <div *ngIf="carpetForm.controls['carpetarea'].errors?.['required']">
+            This field is required
+          </div>
+          <div *ngIf="carpetForm.controls['carpetarea'].errors?.['carpetAreaValidation']">
+            {{carpetForm.controls['carpetarea'].errors?.['carpetAreaValidation'] }}
+
+          </div>
+        </div>
       </div>
       <div class="col-lg-6">
         <label>Carpet Area Unit</label>
         <select class="form-control" formControlName="carpetareaunit">
-          <option *ngFor="let item of areaUnitList" [value]="item.carpetAreaUnitId">{{item.carpetAreaUnitDesc}}</option>
+          <option *ngFor="let item of areaUnitList" [value]="item.carpetAreaUnitId">{{item.carpetAreaUnitDesc}}
+          </option>
         </select>
       </div>
-      <button class="btn btn-primary" style="float: right;margin-top: 20px;">Save</button>
-
+      <button class="btn btn-primary" [disabled]="carpetForm.invalid"
+        style="float: right;margin-top: 20px;">Save</button>
     </form>
   </div>
 </div>
-<router-outlet></router-outlet>
+<app-child [isBussiness]="isBussinessMessage"></app-child>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationService } from './validation.service';
 
@@ -13,7 +13,8 @@ export class AppComponent {
   carpetForm! : FormGroup
   isfetchdata : any;
   carpetAreaUnitMap : any;
-
+  isBussinessMessage="hello";
+  iscarpetAreaUnitId:any;
   areaUnitList = [
     { carpetAreaUnitId: 1, carpetAreaUnitDesc: "Square metre" },
     { carpetAreaUnitId: 2, carpetAreaUnitDesc: "Square feet" },
@@ -24,7 +25,8 @@ export class AppComponent {
 
   fetchdata = [
     {
-      carpetArea: "362",
+      carpetArea: 62,
+      carpetAreaUnitId:null,
       carpetAreaUnit: 1,
       carpetAreaUnitMap: [
         { carpetAreaUnitId: 1, minCarpetAreaAsPerUnit: 60.001, maxCarpetAreaAsPerUnit: 120 },
@@ -36,24 +38,55 @@ export class AppComponent {
     }
   ];
 
+
+
+
+
   constructor(){}
 
   ngOnInit(){
+   setTimeout(() => {
+      this.isBussinessMessage = 'Message updated after 2 seconds!';
+      // Angular might not detect this change immediately without additional steps
+    }, 1000);
+
     this.carpetForm = new FormGroup({
       carpetarea:new FormControl('', [Validators.required, Validators.pattern(/^[0-9]*\.?[0-9]+$/)]),
       carpetareaunit : new FormControl()
     })
-    this.loadData()
+    this.loadData();
+    console.log("iscarpetAreaUnitId2",this.iscarpetAreaUnitId)
+    if(this.iscarpetAreaUnitId != null){
+this.carpetForm.controls['carpetarea'].valueChanges.subscribe((result)=>{
+      this.carpetAreaUnitMap=this.isfetchdata[0].carpetAreaUnitMap.filter((res:any)=>res.carpetAreaUnitId==this.carpetForm.controls['carpetareaunit'].value)
+      this.carpetForm.controls['carpetarea'].setValidators([ValidationService.carpetAreaValidation(this.carpetAreaUnitMap[0]?.minCarpetAreaAsPerUnit,this.carpetAreaUnitMap[0]?.maxCarpetAreaAsPerUnit)])
+    })
+    this.carpetForm.controls['carpetareaunit'].valueChanges.subscribe((result)=>{
+      this.carpetAreaUnitMap=this.isfetchdata[0].carpetAreaUnitMap.filter((res:any)=>res.carpetAreaUnitId==result)
+      this.carpetForm.controls['carpetarea'].setValidators([ValidationService.carpetAreaValidation(this.carpetAreaUnitMap[0]?.minCarpetAreaAsPerUnit,this.carpetAreaUnitMap[0]?.maxCarpetAreaAsPerUnit)])
+      this.carpetForm.controls['carpetarea'].updateValueAndValidity();
+    })
+    }
+    
+   
 
   }
 
   loadData(){
     this.isfetchdata = this.fetchdata;
-    console.log(this.isfetchdata)
+    this.iscarpetAreaUnitId=this.isfetchdata[0].carpetAreaUnitId,
+    console.log("iscarpetAreaUnitId",this.iscarpetAreaUnitId)
     this.carpetForm.patchValue({
       carpetarea : this.isfetchdata[0].carpetArea,
       carpetareaunit : this.isfetchdata[0].carpetAreaUnit
     })
+    if(this.iscarpetAreaUnitId != null){
+      this.carpetAreaUnitMap=this.isfetchdata[0].carpetAreaUnitMap.filter((res:any)=>res.carpetAreaUnitId === this.isfetchdata[0].carpetAreaUnit)
+    this.carpetForm.controls['carpetarea'].setValidators([ValidationService.carpetAreaValidation(this.carpetAreaUnitMap[0]?.minCarpetAreaAsPerUnit,this.carpetAreaUnitMap[0]?.maxCarpetAreaAsPerUnit)])
+    this.carpetForm.controls['carpetarea'].updateValueAndValidity();
+    this.carpetForm.controls['carpetarea'].markAsTouched()
+    }
+    
   }
 
 }
